@@ -5,7 +5,7 @@
 + (instancetype)dictionaryWithGMSPlace:(GMSPlace*)place
 {
     NSMutableDictionary *placeData = [[NSMutableDictionary alloc] init];
-    
+
     if (place.name) {
         placeData[@"name"] = place.name;
     }
@@ -47,7 +47,7 @@
     if (place.rating) {
         placeData[@"rating"] = [NSNumber numberWithDouble:place.rating];
     }
-    
+
     if (place.viewport) {
         NSMutableDictionary *viewportMap = [[NSMutableDictionary alloc] init];
         viewportMap[@"latitudeNE"] = [NSNumber numberWithDouble:place.viewport.northEast.latitude];
@@ -58,14 +58,15 @@
         placeData[@"viewport"] = viewportMap;
     }
 
-    if (place.plusCode) {
-        NSMutableDictionary *plusCodeMap = [[NSMutableDictionary alloc] init];
-        plusCodeMap[@"globalCode"] = place.plusCode.globalCode;
-        plusCodeMap[@"compoundCode"] = place.plusCode.compoundCode;
+//    if (place.plusCode) {
+//        NSMutableDictionary *plusCodeMap = [[NSMutableDictionary alloc] init];
+//        plusCodeMap[@"globalCode"] = place.plusCode.globalCode;
+//        plusCodeMap[@"compoundCode"] = place.plusCode.compoundCode;
+//
+//        placeData[@"placeCode"] = plusCodeMap;
+//    }
 
-        placeData[@"placeCode"] = plusCodeMap;
-    }
-    
+
     if (place.addressComponents) {
         NSMutableDictionary *addressComponents = [[NSMutableDictionary alloc] init];
         for( int i=0;i<place.addressComponents.count;i++) {
@@ -74,14 +75,14 @@
         placeData[@"addressComponents"] = addressComponents;
     }
 
-    if (place.openingHours) {
-        placeData[@"openingHours"] = place.openingHours.weekdayText;
-    }
+//    if (place.openingHours) {
+//        placeData[@"openingHours"] = place.openingHours.weekdayText;
+//    }
+//
+//    if (place.userRatingsTotal) {
+//        placeData[@"userRatingsTotal"] = @(place.userRatingsTotal);
+//    }
 
-    if (place.userRatingsTotal) {
-        placeData[@"userRatingsTotal"] = @(place.userRatingsTotal);
-    }
-    
     return placeData;
 }
 
