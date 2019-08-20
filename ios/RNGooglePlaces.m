@@ -133,7 +133,7 @@ RCT_EXPORT_METHOD(lookUpPlaceByID: (NSString*)placeID
                  resolver: (RCTPromiseResolveBlock)resolve
                  rejecter: (RCTPromiseRejectBlock)reject)
 {
-    GMSPlaceField selectedFields = [self getSelectedFields:fields isCurrentOrFetchPlace:true];
+    GMSPlaceField selectedFields = [self getSelectedFields:fields isCurrentOrFetchPlace:false];
 
     [[GMSPlacesClient sharedClient] fetchPlaceFromPlaceID:placeID placeFields:selectedFields sessionToken:nil
                                          callback:^(GMSPlace * _Nullable place, NSError * _Nullable error) {
@@ -239,10 +239,10 @@ RCT_EXPORT_METHOD(getCurrentPlace: (NSArray *)fields
     if ([fields count] == 0 && currentOrFetch) {
         GMSPlaceField placeFields = 0;
         for (NSString *fieldLabel in fieldsMapping) {
-            if ([fieldsMapping[fieldLabel] integerValue] != GMSPlaceFieldAddressComponents &&
-                [fieldsMapping[fieldLabel] integerValue] != GMSPlaceFieldOpeningHours &&
+            if ([fieldsMapping[fieldLabel] integerValue] != GMSPlaceFieldOpeningHours &&
                 [fieldsMapping[fieldLabel] integerValue] != GMSPlaceFieldPhoneNumber &&
-                [fieldsMapping[fieldLabel] integerValue] != GMSPlaceFieldWebsite) {
+                [fieldsMapping[fieldLabel] integerValue] != GMSPlaceFieldWebsite &&
+                [fieldsMapping[fieldLabel] integerValue] != GMSPlaceFieldAddressComponents) {
                 placeFields |= [fieldsMapping[fieldLabel] integerValue];
             }
         }
@@ -252,10 +252,10 @@ RCT_EXPORT_METHOD(getCurrentPlace: (NSArray *)fields
     if ([fields count] != 0 && currentOrFetch) {
         GMSPlaceField placeFields = 0;
         for (NSString *fieldLabel in fields) {
-            if ([fieldsMapping[fieldLabel] integerValue] != GMSPlaceFieldAddressComponents &&
-                [fieldsMapping[fieldLabel] integerValue] != GMSPlaceFieldOpeningHours &&
+            if ([fieldsMapping[fieldLabel] integerValue] != GMSPlaceFieldOpeningHours &&
                 [fieldsMapping[fieldLabel] integerValue] != GMSPlaceFieldPhoneNumber &&
-                [fieldsMapping[fieldLabel] integerValue] != GMSPlaceFieldWebsite) {
+                [fieldsMapping[fieldLabel] integerValue] != GMSPlaceFieldWebsite &&
+                [fieldsMapping[fieldLabel] integerValue] != GMSPlaceFieldAddressComponents) {
                 placeFields |= [fieldsMapping[fieldLabel] integerValue];
             }
         }

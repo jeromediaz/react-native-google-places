@@ -8,10 +8,10 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.Manifest.permission;
 import android.content.pm.PackageManager;
-import android.support.annotation.Nullable;
-import android.support.annotation.RequiresPermission;
-import android.support.v4.content.ContextCompat;
-import 	android.support.v4.app.ActivityCompat;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresPermission;
+import androidx.core.content.ContextCompat;
+import 	androidx.core.app.ActivityCompat;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.Manifest.permission.ACCESS_WIFI_STATE;
@@ -286,8 +286,8 @@ public class RNGooglePlacesModule extends ReactContextBaseJavaModule implements 
             promise.reject("E_API_KEY_ERROR", new Error("No API key defined in gradle.properties or errors initializing Places"));
             return;
         }
-
-        List<Place.Field> selectedFields = getPlaceFields(fields.toArrayList(), true);
+        
+        List<Place.Field> selectedFields = getPlaceFields(fields.toArrayList(), false);
 
         FetchPlaceRequest request = FetchPlaceRequest.builder(placeID, selectedFields).build();
 
@@ -381,6 +381,28 @@ public class RNGooglePlacesModule extends ReactContextBaseJavaModule implements 
                 map.putString("address", place.getAddress());
             } else {
                 map.putString("address", "");
+            }
+        }
+
+        if (selectedFields.contains(Place.Field.ADDRESS_COMPONENTS)) {
+            if (place.getAddressComponents() != null) {
+                List<AddressComponent> items = place.getAddressComponents().asList();
+                WritableNativeArray addressComponents = new WritableNativeArray();
+
+                for (AddressComponent item : items) {
+                    WritableMap addressComponentMap = Arguments.createMap();
+                    addressComponentMap.putArray("types", Arguments.fromList(item.getTypes()));
+                    addressComponentMap.putString("name", item.getName());
+                    addressComponentMap.putString("shortName", item.getShortName());
+
+                    addressComponents.pushMap(addressComponentMap);
+                }
+
+                map.putArray("addressComponents", addressComponents);
+            }
+            else {
+                WritableArray emptyResult = Arguments.createArray();
+                map.putArray("addressComponents", emptyResult);
             }
         }
 
@@ -486,22 +508,6 @@ public class RNGooglePlacesModule extends ReactContextBaseJavaModule implements 
             }
         }
 
-        if (selectedFields.contains(Place.Field.ADDRESS_COMPONENTS)) {
-            if (place.getAddressComponents() != null) {
-                WritableMap addressComponents = Arguments.createMap();
-                for (AddressComponent component : place.getAddressComponents().asList()) {
-                    String name = component.getName();
-                    for (String type : component.getTypes()) {
-                        addressComponents.putString(type, name);
-                    }
-                }
-                map.putMap("addressComponents", addressComponents);
-            } else {
-                WritableMap emptyResult = Arguments.createMap();
-                map.putMap("addressComponents", emptyResult);
-            }
-        }
-
         return map;
     }
 
@@ -542,7 +548,7 @@ public class RNGooglePlacesModule extends ReactContextBaseJavaModule implements 
 
         if (placeFields.size() == 0 && isCurrentOrFetchPlace) {
             List<Place.Field> allPlaceFields = new ArrayList<>(Arrays.asList(Place.Field.values()));
-            allPlaceFields.removeAll(Arrays.asList(Place.Field.OPENING_HOURS, Place.Field.PHONE_NUMBER, Place.Field.WEBSITE_URI));
+            allPlaceFields.removeAll(Arrays.asList(Place.Field.OPENING_HOURS, Place.Field.PHONE_NUMBER, Place.Field.WEBSITE_URI, Place.Field.ADDRESS_COMPONENTS));
 
             return allPlaceFields;
         }
@@ -554,7 +560,7 @@ public class RNGooglePlacesModule extends ReactContextBaseJavaModule implements 
         }
 
         if (placeFields.size() != 0 && isCurrentOrFetchPlace) {
-            selectedFields.removeAll(Arrays.asList(Place.Field.OPENING_HOURS, Place.Field.PHONE_NUMBER, Place.Field.WEBSITE_URI));
+            selectedFields.removeAll(Arrays.asList(Place.Field.OPENING_HOURS, Place.Field.PHONE_NUMBER, Place.Field.WEBSITE_URI, Place.Field.ADDRESS_COMPONENTS));
         }
 
         return selectedFields;
