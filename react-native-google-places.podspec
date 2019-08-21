@@ -13,15 +13,15 @@ Pod::Spec.new do |s|
   s.source         = { :git => 'https://github.com/tolu360/react-native-google-places.git', :tag => s.version }
 
   s.requires_arc   = true
-  s.platform       = :ios, '8.0'
+  s.platform       = :ios, '9.0'
 
   s.preserve_paths = 'README.md', 'package.json', 'index.js'
   s.source_files   = 'ios/*.{h,m}'
 
-  s.compiler_flags = '-fno-modules'
+  s.compiler_flags = '-DHAVE_GOOGLE_MAPS=1', '-fno-modules'
 
   s.dependency 'React'
-  s.dependency 'GooglePlaces'
-  s.dependency 'GoogleMaps'
+  s.dependency 'GooglePlaces', '~> 3.1.0'
+  s.dependency 'GoogleMaps', '~> 3.1.0'
   s.dependency 'GooglePlacePicker'
 end
