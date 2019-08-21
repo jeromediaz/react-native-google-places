@@ -7,14 +7,14 @@
   "scripts": {},
   "repository": {
     "type": "git",
-    "url": "https://github.com/tolu360/react-native-google-places"
+    "url": "https://github.com/localz/react-native-google-places"
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/tolu360/react-native-google-places/issues"
+    "url": "https://github.com/localz/react-native-google-places/issues"
   },
   "types": "index.d.ts",
-  "homepage": "https://github.com/tolu360/react-native-google-places#readme",
+  "homepage": "https://github.com/localz/react-native-google-places#readme",
   "keywords": [
     "react",
     "react-native",
