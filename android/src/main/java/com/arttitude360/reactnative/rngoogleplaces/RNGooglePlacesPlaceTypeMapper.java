@@ -3,7 +3,6 @@ package com.arttitude360.reactnative.rngoogleplaces;
 import com.google.android.libraries.places.api.model.Place;
 
 final class RNGooglePlacesPlaceTypeMapper {
-
     static String getTypeSlug(Place.Type type) {
         String slug;
 
