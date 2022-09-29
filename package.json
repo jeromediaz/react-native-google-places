@@ -4,7 +4,10 @@
   "main": "index.js",
   "author": "Tolu Olowu (Arttitude 360) <tolu@arttitude360.com>",
   "version": "3.1.3",
-  "scripts": {},
+  "scripts": {
+    "test": "echo \"No tests\" && exit 0",
+    "release": "yarn test && release-it --no-github"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/localz/react-native-google-places"
@@ -28,8 +31,12 @@
     "android"
   ],
   "peerDependencies": {
-    "react": ">=15.4.0 || ^16.0.0-alpha",
-    "react-native": ">=0.40.0"
+    "react": ">=17.0.2",
+    "react-native": ">=0.68.3"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "react": "17.0.2",
+    "react-native": "0.68.3",
+    "release-it": "14.12.4"
+  }
 }
