@@ -11,10 +11,8 @@
 
 - (void)openAutocompleteModal: (GMSAutocompleteFilter *)autocompleteFilter
                   placeFields: (GMSPlaceField)selectedFields
-                       bounds: (GMSCoordinateBounds *)autocompleteBounds
-                   boundsMode: (GMSAutocompleteBoundsMode)autocompleteBoundsMode
                      resolver: (RCTPromiseResolveBlock)resolve
                      rejecter: (RCTPromiseRejectBlock)reject;
-                     
+
 
 @end
