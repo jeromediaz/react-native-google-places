@@ -176,7 +176,7 @@ public class RNGooglePlacesModule extends ReactContextBaseJavaModule implements 
         }
 
         if (country != null) {
-            autocompleteIntent.setCountries(Arrays.asList(country.split("|")));
+            autocompleteIntent.setCountries(Arrays.asList(country.split("\\|")));
         }
 
         if (initialQuery != null) {
