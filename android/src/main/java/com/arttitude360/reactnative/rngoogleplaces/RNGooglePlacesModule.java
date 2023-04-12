@@ -125,7 +125,8 @@ public class RNGooglePlacesModule extends ReactContextBaseJavaModule implements 
     public void openAutocompleteModal(ReadableMap options, ReadableArray fields, final Promise promise) {
 
         if (!Places.isInitialized()) {
-            promise.reject("E_API_KEY_ERROR", new Error("No API key defined in gradle.properties or errors initializing Places"));
+            promise.reject("E_API_KEY_ERROR",
+                    new Error("No API key defined in gradle.properties or errors initializing Places"));
             return;
         }
 
@@ -158,22 +159,24 @@ public class RNGooglePlacesModule extends ReactContextBaseJavaModule implements 
 
         this.lastSelectedFields = getPlaceFields(fields.toArrayList(), false);
         Autocomplete.IntentBuilder autocompleteIntent = new Autocomplete.IntentBuilder(
-                useOverlay ? AutocompleteActivityMode.OVERLAY : AutocompleteActivityMode.FULLSCREEN, this.lastSelectedFields);
+                useOverlay ? AutocompleteActivityMode.OVERLAY : AutocompleteActivityMode.FULLSCREEN,
+                this.lastSelectedFields);
 
         if (biasToLatitudeSW != 0 && biasToLongitudeSW != 0 && biasToLatitudeNE != 0 && biasToLongitudeNE != 0) {
             autocompleteIntent.setLocationBias(RectangularBounds.newInstance(
-                new LatLng(biasToLatitudeSW, biasToLongitudeSW),
-                new LatLng(biasToLatitudeNE, biasToLongitudeNE)));
+                    new LatLng(biasToLatitudeSW, biasToLongitudeSW),
+                    new LatLng(biasToLatitudeNE, biasToLongitudeNE)));
         }
 
-        if (restrictToLatitudeSW != 0 && restrictToLongitudeSW != 0 && restrictToLatitudeNE != 0 && restrictToLongitudeNE != 0) {
+        if (restrictToLatitudeSW != 0 && restrictToLongitudeSW != 0 && restrictToLatitudeNE != 0
+                && restrictToLongitudeNE != 0) {
             autocompleteIntent.setLocationRestriction(RectangularBounds.newInstance(
-                new LatLng(restrictToLatitudeSW, restrictToLongitudeSW),
-                new LatLng(restrictToLatitudeNE, restrictToLongitudeNE)));
+                    new LatLng(restrictToLatitudeSW, restrictToLongitudeSW),
+                    new LatLng(restrictToLatitudeNE, restrictToLongitudeNE)));
         }
 
         if (country != null) {
-            autocompleteIntent.setCountry(country);
+            autocompleteIntent.setCountries(country.split("|"));
         }
 
         if (initialQuery != null) {
@@ -182,7 +185,8 @@ public class RNGooglePlacesModule extends ReactContextBaseJavaModule implements 
 
         autocompleteIntent.setTypeFilter(getFilterType(type));
 
-        currentActivity.startActivityForResult(autocompleteIntent.build(this.reactContext.getApplicationContext()), AUTOCOMPLETE_REQUEST_CODE);
+        currentActivity.startActivityForResult(autocompleteIntent.build(this.reactContext.getApplicationContext()),
+                AUTOCOMPLETE_REQUEST_CODE);
     }
 
     @ReactMethod
@@ -190,7 +194,8 @@ public class RNGooglePlacesModule extends ReactContextBaseJavaModule implements 
         this.pendingPromise = promise;
 
         if (!Places.isInitialized()) {
-            promise.reject("E_API_KEY_ERROR", new Error("No API key defined in gradle.properties or errors initializing Places"));
+            promise.reject("E_API_KEY_ERROR",
+                    new Error("No API key defined in gradle.properties or errors initializing Places"));
             return;
         }
 
@@ -211,9 +216,8 @@ public class RNGooglePlacesModule extends ReactContextBaseJavaModule implements 
         double restrictToLatitudeNE = locationRestriction.getDouble("latitudeNE");
         double restrictToLongitudeNE = locationRestriction.getDouble("longitudeNE");
 
-        FindAutocompletePredictionsRequest.Builder requestBuilder =
-        FindAutocompletePredictionsRequest.builder()
-        .setQuery(query);
+        FindAutocompletePredictionsRequest.Builder requestBuilder = FindAutocompletePredictionsRequest.builder()
+                .setQuery(query);
 
         if (country != null) {
             requestBuilder.setCountry(country);
@@ -221,14 +225,15 @@ public class RNGooglePlacesModule extends ReactContextBaseJavaModule implements 
 
         if (biasToLatitudeSW != 0 && biasToLongitudeSW != 0 && biasToLatitudeNE != 0 && biasToLongitudeNE != 0) {
             requestBuilder.setLocationBias(RectangularBounds.newInstance(
-                new LatLng(biasToLatitudeSW, biasToLongitudeSW),
-                new LatLng(biasToLatitudeNE, biasToLongitudeNE)));
+                    new LatLng(biasToLatitudeSW, biasToLongitudeSW),
+                    new LatLng(biasToLatitudeNE, biasToLongitudeNE)));
         }
 
-        if (restrictToLatitudeSW != 0 && restrictToLongitudeSW != 0 && restrictToLatitudeNE != 0 && restrictToLongitudeNE != 0) {
+        if (restrictToLatitudeSW != 0 && restrictToLongitudeSW != 0 && restrictToLatitudeNE != 0
+                && restrictToLongitudeNE != 0) {
             requestBuilder.setLocationRestriction(RectangularBounds.newInstance(
-                new LatLng(restrictToLatitudeSW, restrictToLongitudeSW),
-                new LatLng(restrictToLatitudeNE, restrictToLongitudeNE)));
+                    new LatLng(restrictToLatitudeSW, restrictToLongitudeSW),
+                    new LatLng(restrictToLatitudeNE, restrictToLongitudeNE)));
         }
 
         requestBuilder.setTypeFilter(getFilterType(type));
@@ -237,45 +242,45 @@ public class RNGooglePlacesModule extends ReactContextBaseJavaModule implements 
             requestBuilder.setSessionToken(AutocompleteSessionToken.newInstance());
         }
 
-        Task<FindAutocompletePredictionsResponse> task =
-            placesClient.findAutocompletePredictions(requestBuilder.build());
+        Task<FindAutocompletePredictionsResponse> task = placesClient
+                .findAutocompletePredictions(requestBuilder.build());
 
         task.addOnSuccessListener(
-            (response) -> {
-                if (response.getAutocompletePredictions().size() == 0) {
-                    WritableArray emptyResult = Arguments.createArray();
-                    promise.resolve(emptyResult);
-                    return;
-                }
-
-                WritableArray predictionsList = Arguments.createArray();
-
-                for (AutocompletePrediction prediction : response.getAutocompletePredictions()) {
-                    WritableMap map = Arguments.createMap();
-                    map.putString("fullText", prediction.getFullText(null).toString());
-                    map.putString("primaryText", prediction.getPrimaryText(null).toString());
-                    map.putString("secondaryText", prediction.getSecondaryText(null).toString());
-                    map.putString("placeID", prediction.getPlaceId().toString());
-
-                    if (prediction.getPlaceTypes().size() > 0) {
-                        List<String> types = new ArrayList<>();
-                        for (Place.Type placeType : prediction.getPlaceTypes()) {
-                            types.add(RNGooglePlacesPlaceTypeMapper.getTypeSlug(placeType));
-                        }
-                        map.putArray("types", Arguments.fromArray(types.toArray(new String[0])));
+                (response) -> {
+                    if (response.getAutocompletePredictions().size() == 0) {
+                        WritableArray emptyResult = Arguments.createArray();
+                        promise.resolve(emptyResult);
+                        return;
                     }
 
-                    predictionsList.pushMap(map);
-                }
+                    WritableArray predictionsList = Arguments.createArray();
 
-                promise.resolve(predictionsList);
+                    for (AutocompletePrediction prediction : response.getAutocompletePredictions()) {
+                        WritableMap map = Arguments.createMap();
+                        map.putString("fullText", prediction.getFullText(null).toString());
+                        map.putString("primaryText", prediction.getPrimaryText(null).toString());
+                        map.putString("secondaryText", prediction.getSecondaryText(null).toString());
+                        map.putString("placeID", prediction.getPlaceId().toString());
 
-            });
+                        if (prediction.getPlaceTypes().size() > 0) {
+                            List<String> types = new ArrayList<>();
+                            for (Place.Type placeType : prediction.getPlaceTypes()) {
+                                types.add(RNGooglePlacesPlaceTypeMapper.getTypeSlug(placeType));
+                            }
+                            map.putArray("types", Arguments.fromArray(types.toArray(new String[0])));
+                        }
+
+                        predictionsList.pushMap(map);
+                    }
+
+                    promise.resolve(predictionsList);
+
+                });
 
         task.addOnFailureListener(
-            (exception) -> {
-                promise.reject("E_AUTOCOMPLETE_ERROR", new Error(exception.getMessage()));
-            });
+                (exception) -> {
+                    promise.reject("E_AUTOCOMPLETE_ERROR", new Error(exception.getMessage()));
+                });
     }
 
     @ReactMethod
@@ -283,10 +288,11 @@ public class RNGooglePlacesModule extends ReactContextBaseJavaModule implements 
         this.pendingPromise = promise;
 
         if (!Places.isInitialized()) {
-            promise.reject("E_API_KEY_ERROR", new Error("No API key defined in gradle.properties or errors initializing Places"));
+            promise.reject("E_API_KEY_ERROR",
+                    new Error("No API key defined in gradle.properties or errors initializing Places"));
             return;
         }
-        
+
         List<Place.Field> selectedFields = getPlaceFields(fields.toArrayList(), false);
 
         FetchPlaceRequest request = FetchPlaceRequest.builder(placeID, selectedFields).build();
@@ -303,11 +309,12 @@ public class RNGooglePlacesModule extends ReactContextBaseJavaModule implements 
 
     @ReactMethod
     public void getCurrentPlace(ReadableArray fields, final Promise promise) {
-        if (ContextCompat.checkSelfPermission(this.reactContext.getApplicationContext(), permission.ACCESS_WIFI_STATE)
-            != PackageManager.PERMISSION_GRANTED
-        || ContextCompat.checkSelfPermission(this.reactContext.getApplicationContext(), permission.ACCESS_FINE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED) {
-            promise.reject("E_CURRENT_PLACE_ERROR", new Error("Both ACCESS_WIFI_STATE & ACCESS_FINE_LOCATION permissions are required"));
+        if (ContextCompat.checkSelfPermission(this.reactContext.getApplicationContext(),
+                permission.ACCESS_WIFI_STATE) != PackageManager.PERMISSION_GRANTED
+                || ContextCompat.checkSelfPermission(this.reactContext.getApplicationContext(),
+                        permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            promise.reject("E_CURRENT_PLACE_ERROR",
+                    new Error("Both ACCESS_WIFI_STATE & ACCESS_FINE_LOCATION permissions are required"));
             return;
         }
 
@@ -319,43 +326,42 @@ public class RNGooglePlacesModule extends ReactContextBaseJavaModule implements 
     }
 
     /**
-   * Fetches a list of {@link PlaceLikelihood} instances that represent the Places the user is
-   * most
-   * likely to be at currently.
-   */
-    @RequiresPermission(allOf = {ACCESS_FINE_LOCATION, ACCESS_WIFI_STATE})
+     * Fetches a list of {@link PlaceLikelihood} instances that represent the Places
+     * the user is
+     * most
+     * likely to be at currently.
+     */
+    @RequiresPermission(allOf = { ACCESS_FINE_LOCATION, ACCESS_WIFI_STATE })
     private void findCurrentPlaceWithPermissions(List<Place.Field> selectedFields, final Promise promise) {
 
-        FindCurrentPlaceRequest currentPlaceRequest =
-            FindCurrentPlaceRequest.newInstance(selectedFields);
-        Task<FindCurrentPlaceResponse> currentPlaceTask =
-            placesClient.findCurrentPlace(currentPlaceRequest);
+        FindCurrentPlaceRequest currentPlaceRequest = FindCurrentPlaceRequest.newInstance(selectedFields);
+        Task<FindCurrentPlaceResponse> currentPlaceTask = placesClient.findCurrentPlace(currentPlaceRequest);
 
         currentPlaceTask.addOnSuccessListener(
-            (response) -> {
-                if (response.getPlaceLikelihoods().size() == 0) {
-                    WritableArray emptyResult = Arguments.createArray();
-                    promise.resolve(emptyResult);
-                    return;
-                }
+                (response) -> {
+                    if (response.getPlaceLikelihoods().size() == 0) {
+                        WritableArray emptyResult = Arguments.createArray();
+                        promise.resolve(emptyResult);
+                        return;
+                    }
 
-                WritableArray likelyPlacesList = Arguments.createArray();
+                    WritableArray likelyPlacesList = Arguments.createArray();
 
-                for (PlaceLikelihood placeLikelihood : response.getPlaceLikelihoods()) {
+                    for (PlaceLikelihood placeLikelihood : response.getPlaceLikelihoods()) {
 
-                    WritableMap map = propertiesMapForPlace(placeLikelihood.getPlace(), selectedFields);
-                    map.putDouble("likelihood", placeLikelihood.getLikelihood());
+                        WritableMap map = propertiesMapForPlace(placeLikelihood.getPlace(), selectedFields);
+                        map.putDouble("likelihood", placeLikelihood.getLikelihood());
 
-                    likelyPlacesList.pushMap(map);
-                }
+                        likelyPlacesList.pushMap(map);
+                    }
 
-                promise.resolve(likelyPlacesList);
-            });
+                    promise.resolve(likelyPlacesList);
+                });
 
         currentPlaceTask.addOnFailureListener(
-            (exception) -> {
-                promise.reject("E_CURRENT_PLACE_ERROR", new Error(exception.getMessage()));
-            });
+                (exception) -> {
+                    promise.reject("E_CURRENT_PLACE_ERROR", new Error(exception.getMessage()));
+                });
     }
 
     private WritableMap propertiesMapForPlace(Place place, List<Place.Field> selectedFields) {
@@ -399,8 +405,7 @@ public class RNGooglePlacesModule extends ReactContextBaseJavaModule implements 
                 }
 
                 map.putArray("addressComponents", addressComponents);
-            }
-            else {
+            } else {
                 WritableArray emptyResult = Arguments.createArray();
                 map.putArray("addressComponents", emptyResult);
             }
@@ -516,24 +521,24 @@ public class RNGooglePlacesModule extends ReactContextBaseJavaModule implements 
         TypeFilter mappedFilter;
 
         switch (type) {
-        case "geocode":
-            mappedFilter = TypeFilter.GEOCODE;
-            break;
-        case "address":
-            mappedFilter = TypeFilter.ADDRESS;
-            break;
-        case "establishment":
-            mappedFilter = TypeFilter.ESTABLISHMENT;
-            break;
-        case "regions":
-            mappedFilter = TypeFilter.REGIONS;
-            break;
-        case "cities":
-            mappedFilter = TypeFilter.CITIES;
-            break;
-        default:
-            mappedFilter = null;
-            break;
+            case "geocode":
+                mappedFilter = TypeFilter.GEOCODE;
+                break;
+            case "address":
+                mappedFilter = TypeFilter.ADDRESS;
+                break;
+            case "establishment":
+                mappedFilter = TypeFilter.ESTABLISHMENT;
+                break;
+            case "regions":
+                mappedFilter = TypeFilter.REGIONS;
+                break;
+            case "cities":
+                mappedFilter = TypeFilter.CITIES;
+                break;
+            default:
+                mappedFilter = null;
+                break;
         }
 
         return mappedFilter;
@@ -548,7 +553,8 @@ public class RNGooglePlacesModule extends ReactContextBaseJavaModule implements 
 
         if (placeFields.size() == 0 && isCurrentOrFetchPlace) {
             List<Place.Field> allPlaceFields = new ArrayList<>(Arrays.asList(Place.Field.values()));
-            allPlaceFields.removeAll(Arrays.asList(Place.Field.OPENING_HOURS, Place.Field.PHONE_NUMBER, Place.Field.WEBSITE_URI, Place.Field.ADDRESS_COMPONENTS));
+            allPlaceFields.removeAll(Arrays.asList(Place.Field.OPENING_HOURS, Place.Field.PHONE_NUMBER,
+                    Place.Field.WEBSITE_URI, Place.Field.ADDRESS_COMPONENTS));
 
             return allPlaceFields;
         }
@@ -560,7 +566,8 @@ public class RNGooglePlacesModule extends ReactContextBaseJavaModule implements 
         }
 
         if (placeFields.size() != 0 && isCurrentOrFetchPlace) {
-            selectedFields.removeAll(Arrays.asList(Place.Field.OPENING_HOURS, Place.Field.PHONE_NUMBER, Place.Field.WEBSITE_URI, Place.Field.ADDRESS_COMPONENTS));
+            selectedFields.removeAll(Arrays.asList(Place.Field.OPENING_HOURS, Place.Field.PHONE_NUMBER,
+                    Place.Field.WEBSITE_URI, Place.Field.ADDRESS_COMPONENTS));
         }
 
         return selectedFields;
@@ -569,14 +576,13 @@ public class RNGooglePlacesModule extends ReactContextBaseJavaModule implements 
     private boolean checkPermission(String permission) {
         Activity currentActivity = getCurrentActivity();
 
-        boolean hasPermission =
-            ContextCompat.checkSelfPermission(this.reactContext.getApplicationContext(), permission) == PackageManager.PERMISSION_GRANTED;
+        boolean hasPermission = ContextCompat.checkSelfPermission(this.reactContext.getApplicationContext(),
+                permission) == PackageManager.PERMISSION_GRANTED;
         if (!hasPermission && currentActivity != null) {
-            ActivityCompat.requestPermissions(currentActivity, new String[]{permission}, 0);
+            ActivityCompat.requestPermissions(currentActivity, new String[] { permission }, 0);
         }
         return hasPermission;
     }
-
 
     private void rejectPromise(String code, Error err) {
         if (this.pendingPromise != null) {
